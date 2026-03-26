@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Romantic Auto with Music</title>
+<style>
+body {
+  margin:0;
+  overflow:hidden;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: linear-gradient(135deg, #000000, #2a003d);
+  animation: gradientShift 25s ease infinite;
+  position:relative;
+}
+@keyframes gradientShift {
+  0% { background: linear-gradient(135deg, #000000, #2a003d); }
+  50% { background: linear-gradient(135deg, #1a0033, #33001a); }
+  100% { background: linear-gradient(135deg, #000000, #2a003d); }
+}
+.full-img {
+  width:200px;
+  height:200px;
+  object-fit:cover;
+  border-radius:50%;
+  border:4px solid #fff;
+  box-shadow:0 0 20px rgba(255,0,150,0.7);
+  animation: floatUpDown 3s ease-in-out infinite, glowPulse 2s ease-in-out infinite, rotateSlight 8s linear infinite;
+  position:relative;
+}
+@keyframes floatUpDown{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);} }
+@keyframes glowPulse{0%,100%{box-shadow:0 0 20px rgba(255,0,150,0.7);}50%{box-shadow:0 0 60px rgba(255,0,200,1);} }
+@keyframes rotateSlight{0%,100%{transform: rotate(0deg);}50%{transform: rotate(2deg);} }
+.rose{
+  position:absolute;
+  font-size:30px;
+  animation: floatRose linear forwards;
+}
+@keyframes floatRose{
+  0%{transform:translateY(0) rotate(0deg) scale(0.8);opacity:0;}
+  30%{opacity:1;}
+  50%{transform:translateY(-40vh) rotate(10deg) scale(1);}
+  100%{transform:translateY(-80vh) rotate(-10deg) scale(1.2);opacity:0;}
+}
+.popup{
+  position:absolute;
+  color:#fff;
+  padding:12px 20px;
+  font-size:22px;
+  border-right:3px solid rgba(255,255,255,0.75);
+  white-space:nowrap;
+  overflow:hidden;
+  animation: blink 0.7s step-end infinite;
+}
+@keyframes blink{50%{border-color:transparent;} }
+.sparkle{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:white;
+  border-radius:50%;
+  opacity:0.5;
+  animation:sparkleMove linear infinite;
+}
+@keyframes sparkleMove{0%{transform:translateY(0) translateX(0); opacity:0.5;}50%{opacity:1;}100%{transform:translateY(-100vh) translateX(50px); opacity:0;} }
+</style>
+</head>
+<body>
+
+<img src="liuni.jpg" class="full-img" id="mainImg">
+
+<!-- MUSIC -->
+<audio id="bgm" loop>
+  <source src="love_song.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// MUSIC WITH GESTURE FALLBACK
+const bgm = document.getElementById("bgm");
+function playMusic(){
+  bgm.volume = 0.5;
+  bgm.play().catch(()=>{}); // auto try
+}
+// Resume music on first user gesture
+function gestureResume(){
+  bgm.play().catch(()=>{});
+  window.removeEventListener("click",gestureResume);
+  window.removeEventListener("touchstart",gestureResume);
+}
+window.addEventListener("load", playMusic);
+window.addEventListener("click", gestureResume);
+window.addEventListener("touchstart", gestureResume);
+
+// ROSE SPAWN
+function spawnRose(x,y){
+  const r=document.createElement("div");
+  r.className="rose";
+  r.innerText="🌹";
+  r.style.left=x+"px";
+  r.style.top=y+"px";
+  r.style.animationDuration=(3+Math.random()*2)+"s";
+  r.style.transform="rotate("+(-15+Math.random()*30)+"deg)";
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(),4000);
+}
+// AUTO ROSES
+setInterval(()=>spawnRose(Math.random()*window.innerWidth, window.innerHeight),700);
+
+// POPUP TEXT
+function autoText(msg){
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  document.body.appendChild(popup);
+
+  const img = document.getElementById("mainImg");
+  const rect = img.getBoundingClientRect();
+  popup.style.left = (rect.left + rect.width/2) + "px";
+  popup.style.top = (rect.bottom + 10) + "px"; // image এর ঠিক নিচে
+  popup.style.transform = "translateX(-50%)";
+
+  let i = 0;
+  const t = setInterval(()=>{
+    popup.innerText = msg.slice(0,i);
+    i++;
+    if(i>msg.length) clearInterval(t);
+  },100);
+
+  setTimeout(()=>popup.remove(),4000);
+}
+
+window.addEventListener("load", ()=>{
+  autoText("Ei naw, tmr jonno ekti golap🌹");
+  setInterval(()=>autoText("Ei naw, tmr jonno ekti golap🌹"),5000);
+});
+
+// IMAGE CLICK SPAWN
+document.getElementById("mainImg").addEventListener("click", e=>{
+  spawnRose(e.clientX,e.clientY);
+});
+
+// SPARKLES
+for(let i=0;i<40;i++){
+  const sp=document.createElement("div");
+  sp.className="sparkle";
+  sp.style.left=Math.random()*window.innerWidth+"px";
+  sp.style.top=Math.random()*window.innerHeight+"px";
+  sp.style.width=2+Math.random()*3+"px";
+  sp.style.height=2+Math.random()*3+"px";
+  sp.style.animationDuration=(5+Math.random()*5)+"s";
+  document.body.appendChild(sp);
+}
+document.body.addEventListener("mousemove",(e)=>{
+  document.querySelectorAll(".sparkle").forEach(s=>{
+    const dx=e.clientX-parseFloat(s.style.left);
+    const dy=e.clientY-parseFloat(s.style.top);
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    s.style.opacity = (dist<100)?1:0.5;
+  });
+});
+</script>
+</body>
+</html>
